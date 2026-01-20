@@ -3,6 +3,7 @@ pipeline {
 
     tools {
         jdk 'jdk8'
+        maven 'maven3'
     }
 
     stages {
@@ -15,6 +16,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'java -version'
+                sh 'mvn -version'
                 sh 'mvn clean package'
             }
         }
@@ -34,7 +36,7 @@ pipeline {
 
     post {
         success {
-            echo 'Build completed successfully'
+            echo 'Build completed successfully using JDK 8'
         }
         failure {
             echo 'Build failed'
