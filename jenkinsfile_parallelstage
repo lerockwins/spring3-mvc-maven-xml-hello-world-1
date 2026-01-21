@@ -1,0 +1,63 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'jdk8'
+        maven 'maven3'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git url: 'https://github.com/lerockwins/spring3-mvc-maven-xml-hello-world-1.git',
+                    branch: 'master'
+            }
+        }
+
+        stage('Build & Test in Parallel') {
+            parallel {
+                stage('Build') {
+                    steps {
+                        echo "Building application..."
+                        sh 'mvn clean compile'
+                    }
+                }
+
+                stage('Unit Tests') {
+                    steps {
+                        echo "Running unit tests..."
+                        sh 'mvn test || true'
+                    }
+                }
+
+                stage('Static Analysis') {
+                    steps {
+                        echo "Running code scan..."
+                        sh 'echo "Simulating Sonar / Lint step"'
+                    }
+                }
+            }
+        }
+
+        stage('Package') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
+        stage('Archive') {
+            steps {
+                archiveArtifacts artifacts: 'target/*.war', fingerprint: true
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Parallel pipeline completed successfully"
+        }
+        failure {
+            echo "Parallel pipeline failed"
+        }
+    }
+}
